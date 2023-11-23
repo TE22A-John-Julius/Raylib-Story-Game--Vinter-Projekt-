@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "yScG6ip5dRzYg1EAdvrUPHniU7TNYxY7DQfljmaB9xMzAaGPcceq8GAUPAlLoAK2pQjh7+9sY3N4mWIbsr8HLw==",
+  "dgSpecHash": "2kwBNgZHwu2FBfmAA5TKsEHGMhet2jnuDUqvvZb/Ne0YLLVJZC5q+qxI25UYVf8HThzgOD40dXKzPqtmaDtsmQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\julius.john\\Documents\\Programmering_Uppgifter\\Raylib Story Game\\Raylib Story Game\\Raylib Story Game.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\julius.john\\.nuget\\packages\\raylib-cs\\5.0.0\\raylib-cs.5.0.0.nupkg.sha512",
+    "C:\\Users\\julius.john\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512"
+  ],
   "logs": []
 }
