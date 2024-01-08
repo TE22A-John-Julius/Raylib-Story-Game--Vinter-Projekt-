@@ -8,6 +8,17 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+   <Content Include="dungeon.png" CopyToOutputDirectory="Always"/>
+  </ItemGroup>
+  
+  <ItemGroup>
+  <Content Include="sprite.png" CopyToOutputDirectory="Always"/>
+  </ItemGroup>
+
+  <ItemGroup>
+  <Content Include="inverted_sprite.png" CopyToOutputDirectory="Always"/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Raylib-cs" Version="5.0.0" />

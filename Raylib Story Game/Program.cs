@@ -6,11 +6,16 @@ using Raylib_cs;
 Raylib.InitWindow(1200,1000, "Adventure Game");
 Raylib.SetTargetFPS(60);
 
+//Textures
+
+Texture2D background = Raylib.LoadTexture("dungeon.png");
+Texture2D spriteSheet = Raylib.LoadTexture("sprite.png");
+Texture2D invertedSpriteSheet = Raylib.LoadTexture("inverted_sprite.png");
+
 //List of weapons
 string[] weapons = {"LongSword","Staff"};
 
 //Weapon Stats
-
 //LongSword
 int lSStrength = 12;
 int lSAttackSpeed = 4;
@@ -19,12 +24,33 @@ int lSAttackSpeed = 4;
 int sStrength = 9;
 int sAttackSpeed = 5;
 
+//Weapon Draws
+Rectangle longSword = new Rectangle(200,300, 32,64);
+Rectangle staff = new Rectangle(500,300, 32, 64);
 //Character variables
-Rectangle characterRect = new Rectangle(200, 300, 64, 64);
+Rectangle characterRect = new Rectangle(250, 300, 64, 64);
 
 //Movement Variables
 Vector2 movement = new Vector2(0.1f,0.1f);
 float speed = 8;
+
+
+//Animation
+
+//sprite animation variables
+int frameWidth = spriteSheet.Width / 4;
+int frameHeight = spriteSheet.Height;
+int currentFrame = 0;
+int numberOfFrames = 4;
+float frameTime = 0.1f;
+float frameCounter = 0.1f;
+int currentFrameLeft = 0;
+float frameCounterLeft = 0.1f;
+float frameTimeLeft = 0.1f;
+
+//Glitch anim
+float glitchTimer = 0;
+float glitchDuration = 0.5f;
 
 //Scenes
 string scene = "start";
@@ -32,7 +58,26 @@ string scene = "start";
 
 while (!Raylib.WindowShouldClose())
 {
+    //Sprite right animation fr
+     frameCounter += Raylib.GetFrameTime();
+    if ((movement.Y < 0 || movement.X > 0) && frameCounter >= frameTime && movement.Length() > 0)
+    {
+        currentFrame = (currentFrame + 1) % numberOfFrames;
+        frameCounter = 0.0f;
+    }
+    // inverted sprite 
+    else if ((movement.Y > 0 || movement.X < 0) && frameCounter >= frameTime && movement.Length() > 0)
+    {
+        currentFrame = (currentFrame + 1) % numberOfFrames;
+        frameCounter = 0.0f;
+    }
+    Rectangle sourceRec = new Rectangle(currentFrame * frameWidth, 0, frameWidth, frameHeight);
+    Rectangle sourceRecLeft = new Rectangle(currentFrameLeft * frameWidth, 0, frameWidth, frameHeight);
     
+if (movement.X < 0)
+{
+    Raylib.DrawTextureRec(invertedSpriteSheet, sourceRecLeft, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
+}
     if (scene == "game")
     {
         // Movement ONG
@@ -59,21 +104,18 @@ while (!Raylib.WindowShouldClose())
         {
             movement = Vector2.Normalize(movement) * speed;
         }
-        characterRect.X += movement.X;
-        characterRect.Y += movement.Y;
+        characterRect.X += (int)movement.X;
+        characterRect.Y += (int)movement.Y;
+
+
+
     }
     else if (scene == "start")
     {
         if (Raylib.IsKeyDown(KeyboardKey.KEY_SPACE))
         {
-            scene = "dialogue";
-        }
-    }
-    else if (scene == "dialogue")
-    {
-        if (Raylib.IsKeyDown(KeyboardKey.KEY_SPACE))
-        {
-            scene = "";
+            scene = "game";
+            
         }
     }
     /*
@@ -94,23 +136,48 @@ while (!Raylib.WindowShouldClose())
    
     if (scene == "game")
     {
+        Raylib.DrawTexture(background, 0, 0, Color.WHITE);
         Raylib.ClearBackground(Color.DARKGRAY);
-        Raylib.DrawRectangleRec(characterRect, Color.BLUE);
-    } 
+        Raylib.DrawTexture(background, 0, 0, Color.WHITE);
+        Raylib.DrawTextureRec(spriteSheet, sourceRec, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
+        Raylib.DrawRectangleRec(longSword, Color.RED);
+        Raylib.DrawRectangleRec(staff, Color.RED);
+        Raylib.DrawText("CHOOSE YOUR WEAPON HERO",400, 200, 32, Color.WHITE);
+       if (movement.X < 0 || movement.X < 0)
+    {
+        Raylib.DrawTextureRec(invertedSpriteSheet, sourceRec, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
+    }
+    else
+    {
+        Raylib.DrawTextureRec(spriteSheet, sourceRec, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
+    }
+
+
+    }
     else if (scene == "start")
     {
         Raylib.ClearBackground(Color.BLACK);
-        Raylib.DrawText("PRESS SPACE TO WAKE UP", 400, 500, 32, Color.WHITE);
-    }
-    else if (scene == "dialogue")
+        //Make the text glitchy ong
+       if (Raylib.GetTime() - glitchTimer > glitchDuration)
+        {
+            glitchTimer = (float)Raylib.GetTime();
+            
+            // Invert the colors to create a glitch effect
+            Color glitchColor = new Color(
+                (int)Raylib.GetRandomValue(0, 255),
+                (int)Raylib.GetRandomValue(0, 255),
+                (int)Raylib.GetRandomValue(0, 255),
+                255
+            );
+        
+            Raylib.DrawText("PRESS SPACE TO WAKE UP", 400, 500, 32, glitchColor);
+        }
+    else 
     {
-        Raylib.ClearBackground(Color.BLACK);
-        Raylib.DrawCircle(10, 300, 30,Color.WHITE);
-    for (int i = 0 ; i < 10; i++)
-    {
-        Raylib.DrawText("W-where am I?",400, 800,32, Color.WHITE);
+        Raylib.DrawText("PRESS SPACE TO WAKE UP", 400, 500, 32, Color.WHITE );
     }
+        
+
     }
     Raylib.EndDrawing();
 }
-
