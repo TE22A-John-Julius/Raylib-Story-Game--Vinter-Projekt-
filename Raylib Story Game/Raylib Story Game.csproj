@@ -25,6 +25,18 @@
   </ItemGroup>
 
   <ItemGroup>
+  <Content Include="slime_spritesheet.png" CopyToOutputDirectory="Always"/>
+  </ItemGroup>
+
+  <ItemGroup>
+  <Content Include="BloodOverlay.png" CopyToOutputDirectory="Always"/>
+  </ItemGroup>
+
+   <ItemGroup>
+  <Content Include="door.png" CopyToOutputDirectory="Always"/>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Raylib-cs" Version="5.0.0" />
   </ItemGroup>
 

@@ -11,6 +11,9 @@ Texture2D background = Raylib.LoadTexture("dungeon.png");
 Texture2D spriteSheet = Raylib.LoadTexture("sprite.png");
 Texture2D invertedSpriteSheet = Raylib.LoadTexture("inverted_sprite.png");
 Texture2D sky = Raylib.LoadTexture ("sky.png");
+Texture2D slimeSpriteSheet = Raylib.LoadTexture("slime_spritesheet.png");
+Texture2D dead = Raylib.LoadTexture("BloodOverlay.png");
+Texture2D newDoorTexture = Raylib.LoadTexture("door.png");
 
 //List of weapons
 string[] weapons = {"LongSword","Staff"};
@@ -40,14 +43,30 @@ float speed = 8;
 
 //Animation
 //slimes
-int maxSlimes = 8;
-    Rectangle[] slimeRects = new Rectangle[maxSlimes];
-    Vector2[] slimeMovements = new Vector2[maxSlimes];
-    int[] slimeCurrentFrames = new int[maxSlimes];
-    int[] slimeNumberOfFrames = new int[maxSlimes];
-    float[] slimeFrameTime = new float[maxSlimes];
-    float[] slimeFrameCounters = new float[maxSlimes];
+int maxSlimes = 6;
+Rectangle[] slimeRects = new Rectangle[maxSlimes];
+Vector2[] slimeMovements = new Vector2[maxSlimes];
+int[] slimeCurrentFrames = new int[maxSlimes];
+int[] slimeNumberOfFrames = new int[maxSlimes];
+float[] slimeFrameTime = new float[maxSlimes];
+float[] slimeFrameCounters = new float[maxSlimes];
 
+//sprite sheet dimensions
+int slimeFrameWidth = 190;
+int slimeFrameHeight = 190;
+
+//Cuties movements
+for (int i = 0; i < maxSlimes; i++)
+{
+    float x = new Random().Next(100, Raylib.GetScreenWidth() - 100);
+    float y = new Random().Next(100, Raylib.GetScreenHeight() - 100);    
+    slimeRects[i] = new Rectangle(x, y, 32, 32);
+    slimeMovements[i] = new Vector2((float)(new Random().NextDouble() * 2 - 1), (float)(new Random().NextDouble() * 2 - 1));
+    slimeCurrentFrames[i] = 0;
+    slimeNumberOfFrames[i] = 6;
+    slimeFrameTime[i] = 0.4f;
+    slimeFrameCounters[i] = 0.0f;
+}
 
 //sprite animation variables
 int frameWidth = spriteSheet.Width / 4;
@@ -67,9 +86,11 @@ float glitchDuration = 1f;
 //Scenes
 string scene = "start";
 
+bool gameOver = false;
 //Mapping
-Rectangle door = new Rectangle (1000,600, 32, 64);
+Rectangle door = new Rectangle(1000, 600, newDoorTexture.Width, newDoorTexture.Height);
 Rectangle grassPlaceHolder = new Rectangle (0, 900, 1200, 200);
+
 
 while (!Raylib.WindowShouldClose())
 {
@@ -89,11 +110,13 @@ while (!Raylib.WindowShouldClose())
     Rectangle sourceRec = new Rectangle(currentFrame * frameWidth, 0, frameWidth, frameHeight);
     Rectangle sourceRecLeft = new Rectangle(currentFrameLeft * frameWidth, 0, frameWidth, frameHeight);
     
+
+    
 if (movement.X < 0)
 {
     Raylib.DrawTextureRec(invertedSpriteSheet, sourceRecLeft, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
 }
-    if (scene == "game")
+    if (scene == "game" && !gameOver)
     {
         // Movement ONG
         movement = Vector2.Zero;
@@ -122,11 +145,32 @@ if (movement.X < 0)
         characterRect.X += (int)movement.X;
         characterRect.Y += (int)movement.Y;
 
+        // Update Slime Movement and Animation
+         for (int i = 0; i < maxSlimes; i++)
+            {
+              slimeFrameCounters[i] += Raylib.GetFrameTime();    
+              if (slimeFrameCounters[i] >= slimeFrameTime[i])
+              {
+                  slimeCurrentFrames[i] = (slimeCurrentFrames[i] + 1) % slimeNumberOfFrames[i];
+                  slimeFrameCounters[i] = 0.0f;
+
+              slimeRects[i].X += slimeMovements[i].X;
+              slimeRects[i].Y += slimeMovements[i].Y;
+            }
+        //Slime Collisions Check
+         if (Raylib.CheckCollisionRecs(characterRect, slimeRects[i]))
+         {
+            gameOver = true;
+         }
+
         //door collision check
         if (Raylib.CheckCollisionRecs(characterRect, door)){
             scene = "outside";
         }
-       
+            }
+            
+            door.X = 1000;
+            door.Y = 600;
     }
     else if (scene == "start")
     {
@@ -152,33 +196,55 @@ if (movement.X < 0)
     */
     Raylib.BeginDrawing();
    
-    if (scene == "game")
+    if (scene == "game" && !gameOver)
     {
         Raylib.DrawTexture(background, 0, 0, Color.WHITE);
         Raylib.ClearBackground(Color.DARKGRAY);
         Raylib.DrawTexture(background, 0, 0, Color.WHITE);
-        Raylib.DrawTextureRec(spriteSheet, sourceRec, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
-        Raylib.DrawRectangleRec(longSword, Color.RED);
-        Raylib.DrawRectangleRec(staff, Color.RED);
         Raylib.DrawText("YOU HAVE BEEN CHOSEN TO BE THIS WORLDS HERO",200, 100, 32, Color.WHITE);
-        Raylib.DrawRectangleRec(door, Color.BLUE);
+        // door Texture
+        Raylib.DrawTextureRec(newDoorTexture, door, new Vector2(door.X, door.Y), Color.WHITE);
+       
+        //character movement drawing
         if (movement.X < 0 || movement.X < 0)
         {
-        Raylib.DrawTextureRec(invertedSpriteSheet, sourceRec, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
+            Raylib.DrawTextureRec(invertedSpriteSheet, sourceRec, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
         }
         else
         {
-        Raylib.DrawTextureRec(spriteSheet, sourceRec, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
+            Raylib.DrawTextureRec(spriteSheet, sourceRec, new Vector2(characterRect.X, characterRect.Y), Color.WHITE);
+        }
+        // slimes movements drawing
+        for (int i = 0; i < maxSlimes; i++)
+        {
+            slimeFrameCounters[i] += Raylib.GetFrameTime();    
+            if (slimeFrameCounters[i] >= slimeFrameTime[i])
+            {
+                slimeCurrentFrames[i] = (slimeCurrentFrames[i] + 1) % slimeNumberOfFrames[i];
+                slimeFrameCounters[i] = 0.0f;
+                slimeRects[i].X += slimeMovements[i].X;
+                slimeRects[i].Y += slimeMovements[i].Y;
+            }
+        
+            // Drawing slimes
+            Rectangle slimeSourceRec = new Rectangle(slimeCurrentFrames[i] * slimeFrameWidth, 0, slimeFrameWidth, slimeFrameHeight);
+            Vector2 slimePosition = new Vector2(slimeRects[i].X, slimeRects[i].Y);
+            Raylib.DrawTextureRec(slimeSpriteSheet, slimeSourceRec, slimePosition, Color.WHITE);
         }
     }
-
     else if (scene == "outside")
     {
         Raylib.DrawTexture(sky, 0,0, Color.WHITE);
         Raylib.DrawRectangleRec(grassPlaceHolder, Color.GREEN);
+        Raylib.DrawText("YOUR JOURNEY BEGINS NOW",120, 500, 64, Color.WHITE);
+        Raylib.DrawText("(to be continued)", 500, 700, 32, Color.BLACK);
     }
 
-    
+    else if (gameOver){
+        Raylib.DrawTexture(dead, 0, 0, Color.RAYWHITE);
+        Raylib.DrawText("THE HERO HAS FALLEN",270, 500, 64, Color.WHITE);
+    }
+
     else if (scene == "start") {
         Raylib.ClearBackground(Color.BLACK);
         //Make the text glitchy ong
@@ -200,5 +266,6 @@ if (movement.X < 0)
         
     
     }
+    
     Raylib.EndDrawing();
-}
+    }
